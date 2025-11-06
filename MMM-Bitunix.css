@@ -1,0 +1,106 @@
+:root {
+  --font-main: Arial, sans-serif;
+  --font-size-main: 18px;
+  --font-size-change: 14px;
+  --font-size-unit: 12px;
+
+  --color-symbol: #fff;
+  --color-positive: #00ff7f;
+  --color-negative: #ff4040;
+  --color-neutral: #aaa;
+  --color-marker: #FFD700;
+
+  --opacity-marker: 0.9;
+  --opacity-unit: 0.6;
+
+  --spacing-item: 36px;
+  --spacing-symbol-price: 4px;
+  --spacing-change: 8px;
+}
+
+.bitunix-wrapper {
+  font-family: var(--font-main);
+  font-size: var(--font-size-main);
+}
+
+.bitunix-item {
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  min-width: auto;
+  margin-right: var(--spacing-item);
+}
+
+.bitunix-item .symbol {
+  flex: 0 0 auto;
+  font-weight: bold;
+  color: var(--color-symbol);
+  isolation: isolate;
+  margin-right: var(--spacing-symbol-price);
+}
+
+.bitunix-item.positive,
+.bitunix-item.positive .change {
+  color: var(--color-positive);
+  font-weight: bold;
+}
+
+.bitunix-item.negative,
+.bitunix-item.negative .change {
+  color: var(--color-negative);
+  font-weight: bold;
+}
+
+.bitunix-item.neutral,
+.bitunix-item.neutral .change {
+  color: var(--color-neutral);
+}
+
+.bitunix-item .price {
+  flex: 0 0 auto;
+  margin-right: 0;
+}
+
+.bitunix-item .unit {
+  font-size: var(--font-size-unit);
+  opacity: var(--opacity-unit);
+  margin-left: 3px;
+}
+
+.bitunix-item .change {
+  font-size: var(--font-size-change);
+  flex: 0 0 auto;
+  text-align: right;
+  margin-left: var(--spacing-change);
+}
+
+.bitunix-item.loop-marker {
+  display: inline-flex;
+  align-items: baseline;
+  margin-right: var(--spacing-item);
+}
+
+.bitunix-item.loop-marker .marker {
+  color: var(--color-marker);
+  font-size: var(--font-size-main);
+  opacity: var(--opacity-marker);
+}
+
+.bitunix-scroll-container {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+
+.bitunix-tickerframe {
+  display: flex;
+  white-space: nowrap;
+  padding: 0;
+  margin: 0;
+  animation: bitunix-scroll linear infinite;
+}
+
+@keyframes bitunix-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
