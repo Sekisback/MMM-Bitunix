@@ -1,33 +1,37 @@
-<div class="bitunix-scroll-container">
-  <ul class="bitunix-tickerframe">
-    {% for i in range(0, 2) %}
-    <li class="bitunix-item loop-marker">
-      <span class="marker">⭐</span>
-    </li>
-      {% for item in stocks %}
-        {# ---- Dezimalstellen dynamisch bestimmen ---- #}
-        {% set decimals = 2 %}
-        {% if item.lastPrice < 1 %}
-          {% set decimals = 6 %}
-        {% elif item.lastPrice < 10 %}
-          {% set decimals = 4 %}
-        {% elif item.lastPrice < 100 %}
-          {% set decimals = 3 %}
-        {% else %}
-          {% set decimals = 2 %}
-        {% endif %}
-
-        {# ---- Symbol ohne USDT anzeigen ---- #}
-        {% set cleanSymbol = item.symbol.replace("USDT", "") %}
-
-          <li class="bitunix-item {% if item.changePercent > 0 %}positive{% elif item.changePercent < 0 %}negative{% else %}neutral{% endif %}">
-            <span class="symbol">{{ cleanSymbol }}:</span><span class="price">{{ item.lastPrice.toFixed(decimals) }}<span class="unit"> USDT</span></span>
-            {% if config.showChangePercent %}
-              <span class="change">{{ item.changePercent.toFixed(2) }}%</span>
-            {% endif %}
+<div class="MMM-Bitunix">
+  <div class="bitunix-wrapper">
+    <div class="bitunix-scroll-container">
+      <ul class="bitunix-tickerframe">
+        {% for i in range(0, 2) %}
+          <li class="bitunix-item loop-marker">
+            <span class="marker">⭐</span>
           </li>
-        </li>
-      {% endfor %}
-    {% endfor %}
-  </ul>
+          {% for item in stocks %}
+            {% set decimals = 2 %}
+            {% if item.lastPrice < 1 %}
+              {% set decimals = 6 %}
+            {% elif item.lastPrice < 10 %}
+              {% set decimals = 4 %}
+            {% elif item.lastPrice < 100 %}
+              {% set decimals = 3 %}
+            {% else %}
+              {% set decimals = 2 %}
+            {% endif %}
+
+            {% set cleanSymbol = item.symbol.replace("USDT", "") %}
+
+            <li class="bitunix-item {% if item.changePercent > 0 %}positive{% elif item.changePercent < 0 %}negative{% else %}neutral{% endif %}">
+              <span class="symbol">{{ cleanSymbol }}:</span>
+              <span class="price">{{ item.lastPrice.toFixed(decimals) }}
+                <span class="unit"> USDT</span>
+              </span>
+              {% if config.showChangePercent %}
+                <span class="change">{{ item.changePercent.toFixed(2) }}%</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 </div>
