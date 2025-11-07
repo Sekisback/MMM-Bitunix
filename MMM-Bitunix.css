@@ -98,23 +98,5 @@
   white-space: nowrap;
   padding: 0;
   margin: 0;
-  animation: bitunix-scroll-anim linear infinite;
-  animation-duration: var(--scroll-speed);
-}
-
-.MMM-Bitunix .bitunix-tickerframe.scrolling {
-  animation-play-state: running;
-}
-
-.MMM-Bitunix .bitunix-tickerframe.no-scroll {
-  animation: none;
-}
-
-@keyframes bitunix-scroll-anim {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+  will-change: transform;
 }
