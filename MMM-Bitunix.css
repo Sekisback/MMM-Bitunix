@@ -18,6 +18,7 @@
   --spacing-change: 8px;
 }
 
+
 .MMM-Bitunix .bitunix-wrapper {
   font-family: var(--font-main);
   font-size: var(--font-size-main);
@@ -98,10 +99,22 @@
   padding: 0;
   margin: 0;
   animation: bitunix-scroll-anim linear infinite;
+  animation-duration: var(--scroll-speed);
 }
 
-/* isolierte Animation mit eindeutigem Namen */
+.MMM-Bitunix .bitunix-tickerframe.scrolling {
+  animation-play-state: running;
+}
+
+.MMM-Bitunix .bitunix-tickerframe.no-scroll {
+  animation: none;
+}
+
 @keyframes bitunix-scroll-anim {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }

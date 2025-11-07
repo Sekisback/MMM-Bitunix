@@ -16,7 +16,6 @@ Module.register("MMM-Bitunix", {
   start() {
     this.state = { stocks: [], lastUpdate: null };
     this.initialRender = true;
-    this.scrollAnimationId = null;
 
     // Warn if no symbols configured
     if (!this.config.stocks || this.config.stocks.length === 0) {
@@ -41,8 +40,8 @@ Module.register("MMM-Bitunix", {
       if (this.initialRender) {
         this.updateDom();
         this.initialRender = false;
-        // Start animation nach erstem Render
-        setTimeout(() => this.initializeScroll(), 100);
+        // Setup scroll nach erstem Render
+        setTimeout(() => this.setupScroll(), 500);
       } else {
         this.updateValues();
       }
@@ -93,7 +92,7 @@ Module.register("MMM-Bitunix", {
     });
   },
 
-  initializeScroll() {
+  setupScroll() {
     const frame = document.querySelector(".bitunix-tickerframe");
     if (!frame) return;
 
@@ -103,27 +102,15 @@ Module.register("MMM-Bitunix", {
       frame.dataset.scrollInit = "true";
     }
 
-    // Scroll-Animation nur starten wenn noch nicht läuft
-    if (this.scrollAnimationId) return;
-
-    // Animation starten
-    const speed = this.config.scrollSpeed;
-    let pos = 0;
-    const halfWidth = frame.scrollWidth / 2;
-
-    const animate = () => {
-      pos -= speed / 60;
-
-      // Reset position nach Hälfte
-      if (Math.abs(pos) >= halfWidth) {
-        pos = 0;
-      }
-
-      frame.style.transform = `translate3d(${pos}px, 0, 0)`;
-      this.scrollAnimationId = requestAnimationFrame(animate);
-    };
-
-    this.scrollAnimationId = requestAnimationFrame(animate);
+    // CSS-Animation nur wenn scrollSpeed > 0
+    if (this.config.scrollSpeed > 0) {
+      // scrollSpeed in px/s → Duration in Sekunden berechnen
+      const frameWidth = frame.scrollWidth / 2;
+      const duration = frameWidth / this.config.scrollSpeed;
+      
+      // Animation mit berechneter Duration starten
+      frame.style.animation = `bitunix-scroll-anim linear infinite ${duration}s`;
+    }
   },
 
   getTemplateData() {
