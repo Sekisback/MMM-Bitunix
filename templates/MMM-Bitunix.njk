@@ -20,7 +20,7 @@
 
             {% set cleanSymbol = item.symbol.replace("USDT", "") %}
 
-            <li class="bitunix-item {% if item.changePercent > 0 %}positive{% elif item.changePercent < 0 %}negative{% else %}neutral{% endif %}">
+            <li class="bitunix-item {% if item.changePercent > 0 %}positive{% elif item.changePercent < 0 %}negative{% else %}neutral{% endif %}" data-symbol="{{ item.symbol }}">
               <span class="symbol">{{ cleanSymbol }}:</span>
               <span class="price">{{ item.lastPrice.toFixed(decimals) }}
                 <span class="unit"> USDT</span>

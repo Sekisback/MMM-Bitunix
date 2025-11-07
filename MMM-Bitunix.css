@@ -2,7 +2,7 @@
   --font-main: Arial, sans-serif;
   --font-size-main: 30px;
   --font-size-change: 26px;
-  --font-size-unit: 24px;
+  --font-size-unit: 20px;
 
   --color-symbol: #fff;
   --color-positive: #00ff7f;
@@ -10,8 +10,8 @@
   --color-neutral: #aaa;
   --color-marker: #FFD700;
 
-  --opacity-marker: 0.9;
-  --opacity-unit: 0.6;
+  --opacity-marker: 1.0;
+  --opacity-unit: 0.8;
 
   --spacing-item: 36px;
   --spacing-symbol-price: 4px;

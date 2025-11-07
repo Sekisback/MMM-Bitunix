@@ -16,6 +16,7 @@ Module.register("MMM-Bitunix", {
   start() {
     this.state = { stocks: [], lastUpdate: null };
     this.initialRender = true;
+    this.scrollAnimationId = null;
 
     // Warn if no symbols configured
     if (!this.config.stocks || this.config.stocks.length === 0) {
@@ -29,6 +30,8 @@ Module.register("MMM-Bitunix", {
     });
   },
 
+
+
   socketNotificationReceived(notification, payload) {
     const expected = `BITUNIX_TICKER_RESPONSE-${this.identifier}`;
     
@@ -38,6 +41,8 @@ Module.register("MMM-Bitunix", {
       if (this.initialRender) {
         this.updateDom();
         this.initialRender = false;
+        // Start animation nach erstem Render
+        setTimeout(() => this.initializeScroll(), 100);
       } else {
         this.updateValues();
       }
@@ -47,32 +52,38 @@ Module.register("MMM-Bitunix", {
   updateValues() {
     if (!this.state.stocks || this.state.stocks.length === 0) return;
 
-    const allItems = document.querySelectorAll(".bitunix-item");
+    // Get all price items (skip markers)
+    const allItems = document.querySelectorAll(".bitunix-item:not(.loop-marker)");
     if (!allItems.length) return;
 
-    // Map DOM items by symbol
-    const itemMap = {};
-    allItems.forEach(item => {
-      const symbol = item.dataset.symbol ? item.dataset.symbol.toUpperCase() : null;
-      if (!symbol) return;
-      if (!itemMap[symbol]) itemMap[symbol] = [];
-      itemMap[symbol].push(item);
-    });
-
-    // Update values in DOM
+    // Update each stock item
     this.state.stocks.forEach(stock => {
       const symbol = stock.symbol ? stock.symbol.toUpperCase() : null;
-      const targets = itemMap[symbol];
-      if (!targets) return;
+      const selector = `[data-symbol="${symbol}"]`;
+      const items = document.querySelectorAll(selector);
 
-      targets.forEach(item => {
+      items.forEach(item => {
+        // Update price value
         const priceSpan = item.querySelector(".price");
+        if (priceSpan) {
+          let decimals = 2;
+          if (stock.lastPrice < 1) decimals = 6;
+          else if (stock.lastPrice < 10) decimals = 4;
+          else if (stock.lastPrice < 100) decimals = 3;
+          
+          // Nur den Preis-Wert updaten, nicht die Unit
+          const unitSpan = priceSpan.querySelector(".unit");
+          priceSpan.textContent = stock.lastPrice.toFixed(decimals);
+          if (unitSpan) priceSpan.appendChild(unitSpan);
+        }
+
+        // Update change percentage
         const changeSpan = item.querySelector(".change");
-
-        if (priceSpan) priceSpan.textContent = stock.lastPrice?.toFixed(2) ?? "--";
-        if (changeSpan)
+        if (changeSpan) {
           changeSpan.textContent = (stock.changePercent?.toFixed(2) ?? "--") + "%";
+        }
 
+        // Update color class based on change
         item.classList.remove("positive", "negative", "neutral");
         item.classList.add(
           stock.changePercent > 0 ? "positive" :
@@ -80,39 +91,39 @@ Module.register("MMM-Bitunix", {
         );
       });
     });
+  },
 
-    // Update timestamp
-    const timestamp = document.querySelector(".bitunix-timestamp");
-    if (timestamp && this.state.lastUpdate) {
-      timestamp.textContent = moment(this.state.lastUpdate).format("HH:mm:ss");
-    }
-
-    // Initialize continuous scroll animation (once)
+  initializeScroll() {
     const frame = document.querySelector(".bitunix-tickerframe");
-    if (frame && !frame.dataset.scrollInit) {
+    if (!frame) return;
+
+    // Nur einmal das HTML duplizieren
+    if (!frame.dataset.scrollInit) {
       frame.innerHTML += frame.innerHTML;
       frame.dataset.scrollInit = "true";
-      frame.style.whiteSpace = "nowrap";
-      frame.style.display = "flex";
-      frame.style.position = "relative";
-      frame.style.left = "0px";
-
-      const speed = this.config.scrollSpeed;
-      let pos = 0;
-
-      const animate = () => {
-        pos -= speed / 60;
-
-        if (Math.abs(pos) >= frame.scrollWidth / 2) {
-          pos = 0;
-        }
-
-        frame.style.transform = `translate3d(${pos}px, 0, 0)`;
-        requestAnimationFrame(animate);
-      };
-
-      requestAnimationFrame(animate);
     }
+
+    // Scroll-Animation nur starten wenn noch nicht läuft
+    if (this.scrollAnimationId) return;
+
+    // Animation starten
+    const speed = this.config.scrollSpeed;
+    let pos = 0;
+    const halfWidth = frame.scrollWidth / 2;
+
+    const animate = () => {
+      pos -= speed / 60;
+
+      // Reset position nach Hälfte
+      if (Math.abs(pos) >= halfWidth) {
+        pos = 0;
+      }
+
+      frame.style.transform = `translate3d(${pos}px, 0, 0)`;
+      this.scrollAnimationId = requestAnimationFrame(animate);
+    };
+
+    this.scrollAnimationId = requestAnimationFrame(animate);
   },
 
   getTemplateData() {
