@@ -93,37 +93,55 @@ Module.register("MMM-Bitunix", {
   },
 
   setupScroll() {
+    // Hole den Ticker-Frame Element
     const frame = document.querySelector(".bitunix-tickerframe");
+    // Prüfe ob Frame existiert und Scroll-Speed konfiguriert ist
     if (!frame || !this.config.scrollSpeed || this.config.scrollSpeed <= 0) return;
 
-    // Nur einmal das HTML duplizieren
+    // Prüfe ob bereits initialisiert wurde
     if (!frame.dataset.scrollInit) {
+      // Dupliziere den HTML-Content für nahtlose Schleife
       frame.innerHTML += frame.innerHTML;
+      // Markiere als initialisiert
       frame.dataset.scrollInit = "true";
     }
 
-    // Animation bereits laufen?
+    // Prüfe ob Animation bereits läuft
     if (frame.dataset.animRunning) return;
+    // Setze Flag dass Animation läuft
     frame.dataset.animRunning = "true";
 
-    // Smooth scroll mit requestAnimationFrame
-    let pos = 0;
-    const halfWidth = frame.scrollWidth / 2;
-    const speed = this.config.scrollSpeed;
+    // Warte kurz damit Layout vollständig berechnet ist
+    setTimeout(() => {
+      // Ermittle die originale Breite (vor Verdopplung)
+      const container = document.querySelector(".bitunix-scroll-container");
+      // Berechne halbe Breite basierend auf Container
+      const halfWidth = container.offsetWidth * 1.5;
+      // Hole Scroll-Geschwindigkeit aus Config
+      const speed = this.config.scrollSpeed;
 
-    const animate = () => {
-      pos -= speed / 60;
-      
-      // Position reset nach Hälfte
-      if (pos <= -halfWidth) {
-        pos = 0;
-      }
+      // Initialisiere Position
+      let pos = 0;
 
-      frame.style.transform = `translate(${pos}px, 0)`;
+      // Definiere die Animations-Funktion
+      const animate = () => {
+        // Bewege Position nach links basierend auf Speed
+        pos -= speed / 60;
+        
+        // Setze Position zurück wenn halbe Breite erreicht
+        if (pos <= -halfWidth) {
+          pos = 0;
+        }
+
+        // Wende CSS Transform an für flüssige Animation
+        frame.style.transform = `translate(${pos}px, 0)`;
+        // Fordere nächsten Frame an für smooth Animation
+        requestAnimationFrame(animate);
+      };
+
+      // Starte die Animation
       requestAnimationFrame(animate);
-    };
-
-    requestAnimationFrame(animate);
+    }, 500);
   },
 
   getTemplateData() {
