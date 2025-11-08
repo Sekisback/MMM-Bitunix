@@ -1,73 +1,73 @@
 .MMM-Bitunix {
-  --font-main: Arial, sans-serif;
-  --font-size-main: 30px;
+  --font-main: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  --font-size-main: 36px;
   --font-size-change: 24px;
-  --font-size-unit: 16px;
+  --font-size-marker: 24px;
 
   --color-symbol: #fff;
   --color-positive: #00ff7f;
   --color-negative: #ff4040;
   --color-neutral: #cccccc;
-  --color-marker: #FFD700;
-
-  --opacity-marker: 1.0;
-  --opacity-unit: 0.8;
 
   --spacing-item: 36px;
   --spacing-symbol-price: 4px;
   --spacing-change: 8px;
 }
 
-
+/* Wrapper versteckt Überlauf */
 .MMM-Bitunix .bitunix-wrapper {
   font-family: var(--font-main);
   font-size: var(--font-size-main);
+  overflow: hidden;
+  width: 100%;
+  font-weight: bold;
 }
 
+/* Scroll-Container mit Animation */
+.MMM-Bitunix .bitunix-tickerframe {
+  display: flex;
+  white-space: nowrap;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  will-change: auto;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Einzelnes Stock-Item horizontal */
 .MMM-Bitunix .bitunix-item {
   display: inline-flex;
   justify-content: flex-start;
   align-items: baseline;
-  min-width: auto;
-  margin-right: var(--spacing-item);
+  flex: 0 0 auto;
+  white-space: nowrap;
+  min-width: fit-content;
 }
 
+/* Symbol-Styling */
 .MMM-Bitunix .bitunix-item .symbol {
   flex: 0 0 auto;
-  font-weight: 500;
+  font-weight: bold;
   color: var(--color-symbol);
-  isolation: isolate;
   margin-right: var(--spacing-symbol-price);
 }
 
-.MMM-Bitunix .bitunix-item.positive,
-.MMM-Bitunix .bitunix-item.positive .change {
-  color: var(--color-positive);
-  font-weight: 500;
-}
-
-.MMM-Bitunix .bitunix-item.negative,
-.MMM-Bitunix .bitunix-item.negative .change {
-  color: var(--color-negative);
-  font-weight: 500;
-}
-
-.MMM-Bitunix .bitunix-item.neutral,
-.MMM-Bitunix .bitunix-item.neutral .change {
-  color: var(--color-neutral);
-}
-
+/* Preis-Styling */
 .MMM-Bitunix .bitunix-item .price {
   flex: 0 0 auto;
   margin-right: 0;
+  font-weight: bold;
 }
 
+/* Unit (USDT) kleiner */
 .MMM-Bitunix .bitunix-item .unit {
   font-size: var(--font-size-unit);
-  opacity: var(--opacity-unit);
+  opacity: 0.8;
   margin-left: 3px;
 }
 
+/* Änderung in Prozent */
 .MMM-Bitunix .bitunix-item .change {
   font-size: var(--font-size-change);
   flex: 0 0 auto;
@@ -75,34 +75,48 @@
   margin-left: var(--spacing-change);
 }
 
-.MMM-Bitunix .bitunix-item.loop-marker {
+/* Farbe basierend auf Trend */
+.MMM-Bitunix .bitunix-item.positive {
+  color: var(--color-positive);
+  font-weight: 500;
+}
+
+.MMM-Bitunix .bitunix-item.negative {
+  color: var(--color-negative);
+  font-weight: 500;
+}
+
+.MMM-Bitunix .bitunix-item.neutral {
+  color: var(--color-neutral);
+}
+
+/* Separator-Marker */
+.MMM-Bitunix .bitunix-item.marker {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-width: auto;
-  margin-right: var(--spacing-item);
+  justify-content: flex-start;
+  text-align: left;
 }
 
-.MMM-Bitunix .bitunix-item.loop-marker .marker {
-  color: var(--color-marker);
-  font-size: var(--font-size-main);
-  opacity: var(--opacity-marker);
-  /* Marker vergrößern für bessere Sichtbarkeit auf Pi */
-  transform: scale(1.0);
+.MMM-Bitunix .bitunix-item.marker span {
+  color: #FFD700;
+  font-size: var(--font-size-marker);
   font-weight: bold;
-  text-shadow: 0 0 2px rgba(255, 215, 0, 1.0);
+  opacity: 1.0;
 }
 
-.MMM-Bitunix .bitunix-scroll-container {
-  overflow: hidden;
-  width: 100%;
-  position: relative;
+/* CSS Animation - smooth & kontinuierlich */
+@keyframes bitunix-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
 }
 
-.MMM-Bitunix .bitunix-tickerframe {
-  display: flex;
-  white-space: nowrap;
-  padding: 0;
-  margin: 0;
+/* Animation nur wenn aktiv */
+.MMM-Bitunix .bitunix-tickerframe.scroll-active {
+  animation: bitunix-scroll var(--scroll-duration) linear infinite;
   will-change: transform;
 }
