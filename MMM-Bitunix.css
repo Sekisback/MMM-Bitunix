@@ -105,18 +105,4 @@
   opacity: 1.0;
 }
 
-/* CSS Animation - smooth & kontinuierlich */
-@keyframes bitunix-scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-33.333%);
-  }
-}
-
-/* Animation nur wenn aktiv */
-.MMM-Bitunix .bitunix-tickerframe.scroll-active {
-  animation: bitunix-scroll 25s linear infinite;
-  will-change: transform;
-}
+/* Kein CSS Animation – JavaScript handelt das */
