@@ -2,7 +2,7 @@
   --font-main: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
   --font-size-main: 36px;
   --font-size-change: 24px;
-  --font-size-marker: 24px;
+  --font-size-unit: 16px;
 
   --color-symbol: #fff;
   --color-positive: #00ff7f;
@@ -100,7 +100,7 @@
 
 .MMM-Bitunix .bitunix-item.marker span {
   color: #FFD700;
-  font-size: var(--font-size-marker);
+  font-size: var(--font-size-main);
   font-weight: bold;
   opacity: 1.0;
 }
