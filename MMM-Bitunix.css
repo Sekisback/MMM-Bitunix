@@ -117,6 +117,6 @@
 
 /* Animation nur wenn aktiv */
 .MMM-Bitunix .bitunix-tickerframe.scroll-active {
-  animation: bitunix-scroll 10s linear infinite;
+  animation: bitunix-scroll 25s linear infinite;
   will-change: transform;
 }
