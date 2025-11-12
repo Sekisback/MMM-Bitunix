@@ -1,108 +1,69 @@
+/* Hauptcontainer */
 .MMM-Bitunix {
-  --font-main: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  --font-main: 'DejaVu Sans Mono', monospace;
   --font-size-main: 36px;
   --font-size-change: 24px;
-  --font-size-marker: 20px;
-
-  --color-symbol: #fff;
+  --font-size-usdt: 18px;
+  --color-symbol: #ffffff;
   --color-positive: #00ff7f;
   --color-negative: #ff4040;
   --color-neutral: #cccccc;
-
-  --spacing-item: 36px;
-  --spacing-symbol-price: 4px;
-  --spacing-change: 8px;
 }
 
-/* Wrapper versteckt Überlauf */
+/* Wrapper mit Fade-Animation (Dauer kommt inline aus Template) */
 .MMM-Bitunix .bitunix-wrapper {
   font-family: var(--font-main);
   font-size: var(--font-size-main);
-  overflow: hidden;
-  width: 100%;
   font-weight: bold;
 }
 
-/* Scroll-Container mit Animation */
-.MMM-Bitunix .bitunix-tickerframe {
-  display: flex;
-  white-space: nowrap;
-  padding: 0;
-  margin: 0;
-  list-style-type: none;
-  will-change: auto;
-  transform: translateZ(0);
-  backface-visibility: hidden;
+/* Fade In/Out */
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
-/* Einzelnes Stock-Item horizontal */
+/* Stock-Item */
 .MMM-Bitunix .bitunix-item {
-  display: inline-flex;
-  justify-content: flex-start;
+  display: inline-flex;  
   align-items: baseline;
-  flex: 0 0 auto;
   white-space: nowrap;
-  min-width: fit-content;
 }
 
-/* Symbol-Styling */
+/* Symbol bleibt immer weiß */
 .MMM-Bitunix .bitunix-item .symbol {
-  flex: 0 0 auto;
-  font-weight: bold;
   color: var(--color-symbol);
-  margin-right: var(--spacing-symbol-price);
-}
-
-/* Preis-Styling */
-.MMM-Bitunix .bitunix-item .price {
-  flex: 0 0 auto;
-  margin-right: 0;
   font-weight: bold;
 }
 
-/* Unit (USDT) kleiner */
-.MMM-Bitunix .bitunix-item .unit {
-  font-size: var(--font-size-unit);
-  opacity: 0.8;
-  margin-left: 3px;
+/* Doppelpunkt */
+.MMM-Bitunix .bitunix-item .colon {
+  color: var(--color-symbol);
+  margin-right: 10px;
 }
 
-/* Änderung in Prozent */
+/* Preis */
+.MMM-Bitunix .bitunix-item .price {
+  font-weight: bold;
+}
+
+/* USDT */
+.MMM-Bitunix .bitunix-item .usdt {
+  font-size: var(--font-size-usdt);
+  margin-left: 5px;
+  margin-right: 2px;
+  font-weight: normal;
+}
+
+/* Prozent */
 .MMM-Bitunix .bitunix-item .change {
   font-size: var(--font-size-change);
-  flex: 0 0 auto;
-  text-align: right;
-  margin-left: var(--spacing-change);
+  margin-left: 8px;
 }
 
-/* Farbe basierend auf Trend */
-.MMM-Bitunix .bitunix-item.positive {
-  color: var(--color-positive);
-  font-weight: 500;
-}
-
-.MMM-Bitunix .bitunix-item.negative {
-  color: var(--color-negative);
-  font-weight: 500;
-}
-
-.MMM-Bitunix .bitunix-item.neutral {
-  color: var(--color-neutral);
-}
-
-/* Separator-Marker */
-.MMM-Bitunix .bitunix-item.marker {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
-  text-align: left;
-}
-
-.MMM-Bitunix .bitunix-item.marker span {
-  color: #FFD700;
-  font-size: var(--font-size-marker);
-  font-weight: bold;
-  opacity: 1.0;
-}
-
-/* Kein CSS Animation – JavaScript handelt das */
+/* Farben basierend auf Trend */
+.MMM-Bitunix .bitunix-item.positive { color: var(--color-positive); }
+.MMM-Bitunix .bitunix-item.negative { color: var(--color-negative); }
+.MMM-Bitunix .bitunix-item.neutral  { color: var(--color-neutral); }
