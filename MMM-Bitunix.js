@@ -1,7 +1,7 @@
 Module.register("MMM-Bitunix", {
   defaults: {
     stocks: [],
-    display_duration: 5, // Sekunden sichtbar
+    display_duration: 3, // Sekunden sichtbar
     showChangePercent: true,
     updateInterval: 30000
   },
@@ -34,48 +34,63 @@ Module.register("MMM-Bitunix", {
 
   socketNotificationReceived(notification, payload) {
     if (notification === "BITUNIX_TICKERS_RESPONSE") {
-      if (!payload || !payload.stocks) return;
+      if (!payload || !Array.isArray(payload.stocks) || payload.stocks.length === 0) {
+        console.warn("[MMM-Bitunix] Leere Antwort vom Helper.");
+        return;
+      }
 
-      this.state.stocks = payload.stocks;
+      // State aktualisieren
+      this.state.stocks = payload.stocks.filter(s => s && s.symbol);
       this.state.lastUpdate = payload.lastUpdate;
 
-      if (!this.rotationInterval) {
+      // Index zurücksetzen, falls größer als Länge
+      if (this.currentIndex >= this.state.stocks.length) {
         this.currentIndex = 0;
-        this.currentStock = this.state.stocks[this.currentIndex];
+      }
+
+      // Wenn kein aktueller Stock gesetzt -> ersten wählen
+      if (!this.currentStock) {
+        this.currentStock = this.state.stocks[0];
         this.updateDom(0);
         this.startRotation();
-      } else {
-        payload.stocks.forEach(newStock => {
-          const existing = this.state.stocks.find(s => s.symbol === newStock.symbol);
-          if (existing) {
-            existing.lastPrice = newStock.lastPrice;
-            existing.changePercent = newStock.changePercent;
-          }
-        });
-        this.state.lastUpdate = payload.lastUpdate;
-        this.updatePriceInDOM();
       }
     }
   },
 
   startRotation() {
-    if (!this.state.stocks || this.state.stocks.length === 0) return;
+    if (!this.state.stocks || this.state.stocks.length === 0) {
+      console.warn("[MMM-Bitunix] Keine Stocks zum Rotieren.");
+      return;
+    }
 
     const visibleTime = this.config.display_duration * 1000;
-    const fadeTime = 2000; // 0.5 s
+    const fadeTime = 2000; // 2 Sekunden, stabil auf dem Pi
 
-    setInterval(() => {
+    clearInterval(this.rotationInterval);
+
+    this.rotationInterval = setInterval(() => {
+      // Sicherstellen, dass Liste existiert
+      if (!this.state.stocks || this.state.stocks.length === 0) return;
+
       this.currentIndex = (this.currentIndex + 1) % this.state.stocks.length;
       this.currentStock = this.state.stocks[this.currentIndex];
-      this.updateDom(fadeTime);
 
+      if (this.currentStock) {
+        this.updateDom(fadeTime);
+      } else {
+        console.warn("[MMM-Bitunix] currentStock undefined bei Index", this.currentIndex);
+      }
+
+      // Nach jedem vollen Durchlauf neu abrufen
       if (this.currentIndex === 0) {
         this.sendSocketNotification("BITUNIX_REQUEST_TICKERS", {
           stocks: this.config.stocks
         });
       }
-    }, visibleTime);
+    }, visibleTime + fadeTime);
   },
+
+
 
   getDecimals(price) {
     if (price < 1) return 6;
