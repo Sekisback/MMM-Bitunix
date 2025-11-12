@@ -20,7 +20,7 @@ module.exports = NodeHelper.create({
   // Tickers von API holen (korrekt mit 24h-Kline)
   async fetchTickers(stocks) {
     try {
-      console.log("[MMM-Bitunix Node] Hole Tickers für:", stocks.map(s => s.symbol).join(","));
+      //console.log("[MMM-Bitunix Node] Hole Tickers für:", stocks.map(s => s.symbol).join(","));
       const symbols = stocks.map(s => s.symbol).join(",");
 
       // Aktuelle Ticker-Daten
@@ -28,7 +28,7 @@ module.exports = NodeHelper.create({
         params: { symbols }
       });
       const tickerData = tickerRes.data?.data || [];
-      console.log("[MMM-Bitunix Node] Ticker Response:", tickerData.length, "Einträge");
+      //console.log("[MMM-Bitunix Node] Ticker Response:", tickerData.length, "Einträge");
 
       // Zeitstempel: vor 24 Stunden in Millisekunden
       const endTime = Date.now() - 24 * 60 * 60 * 1000;
@@ -57,9 +57,7 @@ module.exports = NodeHelper.create({
             const changePercent =
               close24h > 0 ? ((lastPrice - close24h) / close24h) * 100 : 0;
 
-            console.log(
-              `[MMM-Bitunix Node] ${ticker.symbol}: close24h=${close24h}, last=${lastPrice}, Δ=${changePercent.toFixed(2)}%`
-            );
+            //console.log(`[MMM-Bitunix Node] ${ticker.symbol}: close24h=${close24h}, last=${lastPrice}, Δ=${changePercent.toFixed(2)}%`);
 
             return {
               symbol: ticker.symbol,
