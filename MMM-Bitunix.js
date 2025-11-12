@@ -4,7 +4,7 @@ Module.register("MMM-Bitunix", {
   defaults: {
     stocks: [],
     fadingSpeed: 3,
-    fadingTime: 1.5,
+    fadingTime: 2.5,
     showChangePercent: true,
     updateInterval: 30000
   },
