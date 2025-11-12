@@ -17,15 +17,17 @@
   font-weight: bold;
 }
 
-/* Fade In/Out */
+
+/* Neues sanftes Fade-Out/In */
 @keyframes fadeInOut {
-  0%   { opacity: 0.4; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { opacity: 0.4; }
+  0%   { opacity: 0; }
+  25%  { opacity: 1; }
+  75%  { opacity: 1; }
+  100% { opacity: 0; }
 }
 
-
+.fade-out { opacity: 0; transition: opacity 0.5s linear; }
+.fade-in  { opacity: 1; transition: opacity 0.5s linear; }
 
 /* Stock-Item */
 .MMM-Bitunix .bitunix-item {

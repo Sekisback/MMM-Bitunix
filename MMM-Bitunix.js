@@ -86,46 +86,55 @@ Module.register("MMM-Bitunix", {
     this.currentStock = this.state.stocks[this.currentIndex];
     console.log("[MMM-Bitunix] Rotation gestartet mit:", this.currentStock.symbol);
 
+    // Erstes Symbol sofort anzeigen
     this.updateDom(0);
 
-    // Einheitliche Dauer: Fading + Anzeigezeit
-    const fadeDuration = (this.config.fadingTime * 2) + this.config.fadingSpeed;
-    const cycleDuration = fadeDuration * 1000;
-
-    // Initial Animation starten
-    const wrapperInit = document.querySelector(".MMM-Bitunix .bitunix-wrapper");
-    if (wrapperInit) {
-      wrapperInit.style.animation = `fadeInOut ${fadeDuration}s linear infinite`;
-      wrapperInit.style.opacity = "1";
+    // Einblenden beim Start
+    const firstWrapper = document.querySelector(".MMM-Bitunix .bitunix-wrapper");
+    if (firstWrapper) {
+      firstWrapper.classList.add("fade-in");
     }
 
+    // Wie lange bleibt ein Symbol sichtbar (Anzeigezeit zwischen Fades)
+    const cycleDuration = (this.config.fadingTime + this.config.fadingSpeed) * 1000;
+
     this.rotationInterval = setInterval(() => {
-      // Nächsten Stock vorbereiten
+      // Nächsten Stock bestimmen
       this.currentIndex = (this.currentIndex + 1) % this.state.stocks.length;
       this.currentStock = this.state.stocks[this.currentIndex];
       console.log("[MMM-Bitunix] Wechsle zu:", this.currentStock.symbol);
 
-      // Sofort DOM aktualisieren – kein Blackout
-      this.updateDom(0);
-
-      // Animation neu triggern
       const wrapper = document.querySelector(".MMM-Bitunix .bitunix-wrapper");
       if (wrapper) {
-        wrapper.style.animation = "none";
-        void wrapper.offsetHeight; // Reflow für Restart
-        wrapper.style.animation = `fadeInOut ${fadeDuration}s linear infinite`;
-        wrapper.style.opacity = "1";
+        // 1️⃣ Ausblenden starten
+        wrapper.classList.remove("fade-in");
+        wrapper.classList.add("fade-out");
+
+        // 2️⃣ Nach 0.5 s (Fade-Out fertig): Inhalt tauschen und wieder einblenden
+        setTimeout(() => {
+          this.updateDom(0);
+
+          const newWrapper = document.querySelector(".MMM-Bitunix .bitunix-wrapper");
+          if (newWrapper) {
+            newWrapper.classList.remove("fade-out");
+            newWrapper.classList.add("fade-in");
+          }
+        }, 500); // 0.5 s = Dauer des Fade-Outs
+      } else {
+        // Fallback: kein Wrapper gefunden
+        this.updateDom(0);
       }
 
-      // Nach jedem Durchlauf: neue Preise holen
+      // Nach jedem kompletten Durchlauf frische Preise holen
       if (this.currentIndex === 0) {
-        console.log("[MMM-Bitunix] Durchlauf komplett - neue Preise holen");
+        console.log("[MMM-Bitunix] Durchlauf komplett – neue Preise holen");
         this.sendSocketNotification("BITUNIX_REQUEST_TICKERS", {
           stocks: this.config.stocks
         });
       }
     }, cycleDuration);
   },
+
 
 
   // Dezimalstellen basierend auf Preisgröße
