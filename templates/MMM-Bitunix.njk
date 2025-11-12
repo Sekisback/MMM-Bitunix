@@ -1,43 +1,20 @@
-{# Wrapper mit Overflow Hidden #}
 <div class="MMM-Bitunix">
-  <div class="bitunix-wrapper">
-    {# Scroll-Container #}
-    <ul class="bitunix-tickerframe">
-      {# Marker am Anfang #}
-      <li class="bitunix-item marker">
-        <span>⭐</span>
-      </li>
-      
-      {# Separator nach Marker #}
-      <li class="bitunix-item" style="color: #000; flex: 0 0 auto;">_</li>
-      
-      {# ALLE Stocks rendern #}
-      {% for item in stocks %}
-        {# Dezimalstellen berechnen #}
-        {% set decimals = 2 %}
-        {% if item.lastPrice < 1 %}
-          {% set decimals = 6 %}
-        {% elif item.lastPrice < 10 %}
-          {% set decimals = 4 %}
-        {% elif item.lastPrice < 100 %}
-          {% set decimals = 3 %}
+  <div class="bitunix-wrapper"
+       style="animation: fadeInOut {{ stock.fadeDuration }}s ease-in-out forwards;">
+    {% if stock %}
+      <div class="bitunix-item
+        {% if stock.changePercent > 0 %}positive
+        {% elif stock.changePercent < 0 %}negative
+        {% else %}neutral{% endif %}">
+        <span class="symbol">{{ stock.cleanSymbol }}</span><span class="colon">:</span>
+        <span class="price">{{ stock.lastPrice.toFixed(stock.decimals) }}</span>
+        <span class="usdt">USDT</span>
+        {% if config.showChangePercent %}
+          <span class="change">({{ stock.changePercent.toFixed(2) }}%)</span>
         {% endif %}
-
-        {# Symbol ohne USDT #}
-        {% set cleanSymbol = item.symbol.replace("USDT", "") %}
-
-        {# Stock-Item #}
-        <li class="bitunix-item {% if item.changePercent > 0 %}positive{% elif item.changePercent < 0 %}negative{% else %}neutral{% endif %}" data-symbol="{{ item.symbol }}">
-          <span class="symbol">{{ cleanSymbol }}:</span>
-          <span class="price">{{ item.lastPrice.toFixed(decimals) }}</span>
-          {% if config.showChangePercent %}
-            <span class="change">({{ item.changePercent.toFixed(2) }}%)</span>
-          {% endif %}
-        </li>
-        
-        {# Separator: schwarzer Underscore als visueller Space #}
-        <li class="bitunix-item" style="color: #000; flex: 0 0 auto;">_</li>
-      {% endfor %}
-    </ul>
+      </div>
+    {% else %}
+      <div class="bitunix-item neutral">Loading...</div>
+    {% endif %}
   </div>
 </div>
