@@ -86,10 +86,18 @@ Module.register("MMM-Bitunix", {
     this.currentStock = this.state.stocks[this.currentIndex];
     console.log("[MMM-Bitunix] Rotation gestartet mit:", this.currentStock.symbol);
 
-    this.updateDom();
+    this.updateDom(0);
 
-    const cycleDuration =
-      (this.config.fadingTime + this.config.fadingSpeed + this.config.fadingTime) * 1000;
+    // Einheitliche Dauer: Fading + Anzeigezeit
+    const fadeDuration = (this.config.fadingTime * 2) + this.config.fadingSpeed;
+    const cycleDuration = fadeDuration * 1000;
+
+    // Initial Animation starten
+    const wrapperInit = document.querySelector(".MMM-Bitunix .bitunix-wrapper");
+    if (wrapperInit) {
+      wrapperInit.style.animation = `fadeInOut ${fadeDuration}s linear infinite`;
+      wrapperInit.style.opacity = "1";
+    }
 
     this.rotationInterval = setInterval(() => {
       // Nächsten Stock vorbereiten
@@ -97,24 +105,17 @@ Module.register("MMM-Bitunix", {
       this.currentStock = this.state.stocks[this.currentIndex];
       console.log("[MMM-Bitunix] Wechsle zu:", this.currentStock.symbol);
 
-      // Unsichtbar vorbereiten
+      // Sofort DOM aktualisieren – kein Blackout
+      this.updateDom(0);
+
+      // Animation neu triggern
       const wrapper = document.querySelector(".MMM-Bitunix .bitunix-wrapper");
-      if (wrapper) wrapper.style.opacity = "0";
-
-      // DOM aktualisieren (neue Werte)
-      this.updateDom();
-
-      // Nach kurzem Delay Fading starten
-      setTimeout(() => {
-        const wrapper2 = document.querySelector(".MMM-Bitunix .bitunix-wrapper");
-        if (wrapper2) {
-          wrapper2.style.animation = "none";
-          void wrapper2.offsetHeight; // reflow
-          const fadeDuration = this.config.fadingSpeed + this.config.fadingTime;
-          wrapper2.style.animation = `fadeInOut ${fadeDuration}s ease-in-out forwards`;
-          wrapper2.style.opacity = "1";
-        }
-      }, 100);
+      if (wrapper) {
+        wrapper.style.animation = "none";
+        void wrapper.offsetHeight; // Reflow für Restart
+        wrapper.style.animation = `fadeInOut ${fadeDuration}s linear infinite`;
+        wrapper.style.opacity = "1";
+      }
 
       // Nach jedem Durchlauf: neue Preise holen
       if (this.currentIndex === 0) {
@@ -125,6 +126,7 @@ Module.register("MMM-Bitunix", {
       }
     }, cycleDuration);
   },
+
 
   // Dezimalstellen basierend auf Preisgröße
   getDecimals(price) {
