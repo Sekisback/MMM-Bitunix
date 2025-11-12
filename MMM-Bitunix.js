@@ -1,25 +1,19 @@
-// Module-Registrierung mit Config
 Module.register("MMM-Bitunix", {
-  // Standard-Konfiguration
   defaults: {
     stocks: [],
-    fadingSpeed: 3,
-    fadingTime: 2.5,
+    display_duration: 5, // Sekunden sichtbar
     showChangePercent: true,
     updateInterval: 30000
   },
 
-  // CSS-Datei laden
   getStyles() {
     return ["MMM-Bitunix.css"];
   },
 
-  // Template laden
   getTemplate() {
     return "templates/MMM-Bitunix.njk";
   },
 
-  // Modul starten
   start() {
     this.state = { stocks: [], lastUpdate: null };
     this.currentIndex = 0;
@@ -33,32 +27,24 @@ Module.register("MMM-Bitunix", {
       return;
     }
 
-    console.log("[MMM-Bitunix] Stocks:", this.config.stocks.map(s => s.symbol));
-
-    // Erste Daten vom Node Helper anfordern
     this.sendSocketNotification("BITUNIX_REQUEST_TICKERS", {
       stocks: this.config.stocks
     });
   },
 
-  // Socket-Benachrichtigungen empfangen
   socketNotificationReceived(notification, payload) {
     if (notification === "BITUNIX_TICKERS_RESPONSE") {
-      console.log("[MMM-Bitunix] Tickers erhalten:", payload);
+      if (!payload || !payload.stocks) return;
 
-      // Wenn noch keine Rotation läuft: Start
+      this.state.stocks = payload.stocks;
+      this.state.lastUpdate = payload.lastUpdate;
+
       if (!this.rotationInterval) {
-        this.state.stocks = payload.stocks;
-        this.state.lastUpdate = payload.lastUpdate;
-
-        if (this.state.stocks.length > 0) {
-          this.currentStock = this.state.stocks[0];
-          console.log("[MMM-Bitunix] Starte mit:", this.currentStock.symbol);
-        }
-
+        this.currentIndex = 0;
+        this.currentStock = this.state.stocks[this.currentIndex];
+        this.updateDom(0);
         this.startRotation();
       } else {
-        // Rotation läuft: Preise updaten
         payload.stocks.forEach(newStock => {
           const existing = this.state.stocks.find(s => s.symbol === newStock.symbol);
           if (existing) {
@@ -66,78 +52,31 @@ Module.register("MMM-Bitunix", {
             existing.changePercent = newStock.changePercent;
           }
         });
-
         this.state.lastUpdate = payload.lastUpdate;
-
-        const affected = payload.stocks.find(s => s.symbol === this.currentStock.symbol);
-        if (affected) this.updatePriceInDOM();
+        this.updatePriceInDOM();
       }
     }
   },
 
-  // Rotation starten
   startRotation() {
-    if (!this.state.stocks || this.state.stocks.length === 0) {
-      console.warn("[MMM-Bitunix] Keine Stocks vorhanden");
-      return;
-    }
+    if (!this.state.stocks || this.state.stocks.length === 0) return;
 
-    this.currentIndex = 0;
-    this.currentStock = this.state.stocks[this.currentIndex];
-    console.log("[MMM-Bitunix] Rotation gestartet mit:", this.currentStock.symbol);
+    const visibleTime = this.config.display_duration * 1000;
+    const fadeTime = 1000; // 0.5 s
 
-    // Erstes Symbol sofort anzeigen
-    this.updateDom(0);
-
-    // Einblenden beim Start
-    const firstWrapper = document.querySelector(".MMM-Bitunix .bitunix-wrapper");
-    if (firstWrapper) {
-      firstWrapper.classList.add("fade-in");
-    }
-
-    // Wie lange bleibt ein Symbol sichtbar (Anzeigezeit zwischen Fades)
-    const cycleDuration = (this.config.fadingTime + this.config.fadingSpeed) * 1000;
-
-    this.rotationInterval = setInterval(() => {
-      // Nächsten Stock bestimmen
+    setInterval(() => {
       this.currentIndex = (this.currentIndex + 1) % this.state.stocks.length;
       this.currentStock = this.state.stocks[this.currentIndex];
-      console.log("[MMM-Bitunix] Wechsle zu:", this.currentStock.symbol);
+      this.updateDom(fadeTime);
 
-      const wrapper = document.querySelector(".MMM-Bitunix .bitunix-wrapper");
-      if (wrapper) {
-        // 1️⃣ Ausblenden starten
-        wrapper.classList.remove("fade-in");
-        wrapper.classList.add("fade-out");
-
-        // 2️⃣ Nach 0.5 s (Fade-Out fertig): Inhalt tauschen und wieder einblenden
-        setTimeout(() => {
-          this.updateDom(0);
-
-          const newWrapper = document.querySelector(".MMM-Bitunix .bitunix-wrapper");
-          if (newWrapper) {
-            newWrapper.classList.remove("fade-out");
-            newWrapper.classList.add("fade-in");
-          }
-        }, 500); // 0.5 s = Dauer des Fade-Outs
-      } else {
-        // Fallback: kein Wrapper gefunden
-        this.updateDom(0);
-      }
-
-      // Nach jedem kompletten Durchlauf frische Preise holen
       if (this.currentIndex === 0) {
-        console.log("[MMM-Bitunix] Durchlauf komplett – neue Preise holen");
         this.sendSocketNotification("BITUNIX_REQUEST_TICKERS", {
           stocks: this.config.stocks
         });
       }
-    }, cycleDuration);
+    }, visibleTime);
   },
 
-
-
-  // Dezimalstellen basierend auf Preisgröße
   getDecimals(price) {
     if (price < 1) return 6;
     if (price < 10) return 4;
@@ -145,7 +84,6 @@ Module.register("MMM-Bitunix", {
     return 2;
   },
 
-  // Nur Preis und Prozent im DOM updaten
   updatePriceInDOM() {
     const priceSpan = document.querySelector(".MMM-Bitunix .price");
     const changeSpan = document.querySelector(".MMM-Bitunix .change");
@@ -172,44 +110,20 @@ Module.register("MMM-Bitunix", {
     }
   },
 
-  // Template-Daten vorbereiten
   getTemplateData() {
-    let stock = null;
-    if (this.currentStock && this.currentStock.symbol) {
-      const decimals = this.getDecimals(this.currentStock.lastPrice);
-      const fadeDuration =
-        this.config.fadingTime + this.config.fadingSpeed + this.config.fadingTime;
+    if (!this.currentStock) return { config: this.config, stock: null };
 
-      stock = {
-        ...this.currentStock,
-        decimals,
-        cleanSymbol: this.currentStock.symbol.replace("USDT", ""),
-        fadeDuration,
-        fadingTime: this.config.fadingTime,
-        fadingSpeed: this.config.fadingSpeed
-      };
-    }
-
+    const decimals = this.getDecimals(this.currentStock.lastPrice);
     return {
       config: this.config,
-      stock,
+      stock: {
+        ...this.currentStock,
+        decimals,
+        cleanSymbol: this.currentStock.symbol.replace("USDT", "")
+      },
       lastUpdate: this.state.lastUpdate
         ? moment(this.state.lastUpdate).format("HH:mm:ss")
         : null
     };
-  },
-
-  // Animation resetten
-  notificationReceived(notification) {
-    if (notification === "DOM_OBJECTS_CREATED" || notification === "DOM_OBJECTS_UPDATED") {
-      const wrapper = document.querySelector(".MMM-Bitunix .bitunix-wrapper");
-      if (wrapper) {
-        wrapper.style.animation = "none";
-        setTimeout(() => {
-          const fadeDuration = this.config.fadingSpeed + this.config.fadingTime;
-          wrapper.style.animation = `fadeInOut ${fadeDuration}s ease-in-out forwards`;
-        }, 10);
-      }
-    }
   }
 });
