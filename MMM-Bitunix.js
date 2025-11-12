@@ -62,7 +62,7 @@ Module.register("MMM-Bitunix", {
     if (!this.state.stocks || this.state.stocks.length === 0) return;
 
     const visibleTime = this.config.display_duration * 1000;
-    const fadeTime = 1000; // 0.5 s
+    const fadeTime = 2000; // 0.5 s
 
     setInterval(() => {
       this.currentIndex = (this.currentIndex + 1) % this.state.stocks.length;
