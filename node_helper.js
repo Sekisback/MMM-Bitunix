@@ -89,7 +89,7 @@ module.exports = NodeHelper.create({
         lastUpdate: Date.now()
       });
 
-      Log.info("[MMM-Bitunix] Tickers aktualisiert");
+      //Log.info("[MMM-Bitunix] Tickers aktualisiert");
     } catch (error) {
       Log.error("[MMM-Bitunix] API Error:", error.message);
     }
