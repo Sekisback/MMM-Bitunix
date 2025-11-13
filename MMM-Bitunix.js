@@ -20,8 +20,15 @@ Module.register("MMM-Bitunix", {
     this.currentStock = null;
     this.rotationInterval = null;
 
-    console.log("[MMM-Bitunix] Config:", this.config);
+    // Symbols automatisch auf *USDT* erweitern
+    this.config.stocks = this.config.stocks.map(s => {
+      return {
+        symbol: s.symbol.endsWith("USDT") ? s.symbol : `${s.symbol}USDT`
+      };
+    });
 
+    console.log("[MMM-Bitunix] Normalisierte Stocks:", this.config.stocks);
+    
     if (!this.config.stocks || this.config.stocks.length === 0) {
       console.warn("[MMM-Bitunix] No stocks defined in config.js");
       return;

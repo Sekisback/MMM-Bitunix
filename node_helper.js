@@ -20,23 +20,25 @@ module.exports = NodeHelper.create({
   // Tickers von API holen (korrekt mit 24h-Kline)
   async fetchTickers(stocks) {
     try {
-      //console.log("[MMM-Bitunix Node] Hole Tickers für:", stocks.map(s => s.symbol).join(","));
-      const symbols = stocks.map(s => s.symbol).join(",");
+      // Symbol normalisieren
+      const normalized = stocks.map(s =>
+        s.symbol.endsWith("USDT") ? s.symbol : `${s.symbol}USDT`
+      );
 
-      // Aktuelle Ticker-Daten
-      const tickerRes = await axios.get("https://fapi.bitunix.com/api/v1/futures/market/tickers", {
-        params: { symbols }
-      });
+      const symbols = normalized.join(",");
+
+      // Ticker-Daten holen
+      const tickerRes = await axios.get(
+        "https://fapi.bitunix.com/api/v1/futures/market/tickers",
+        { params: { symbols } }
+      );
+
       const tickerData = tickerRes.data?.data || [];
-      //console.log("[MMM-Bitunix Node] Ticker Response:", tickerData.length, "Einträge");
-
-      // Zeitstempel: vor 24 Stunden in Millisekunden
-      const endTime = Date.now() - 24 * 60 * 60 * 1000;
 
       const formattedStocks = await Promise.all(
         tickerData.map(async ticker => {
           try {
-            // 1m-Kerze vor 24 Stunden holen
+            // 24h-Kline holen
             const klineRes = await axios.get(
               "https://fapi.bitunix.com/api/v1/futures/market/kline",
               {
@@ -44,7 +46,7 @@ module.exports = NodeHelper.create({
                   symbol: ticker.symbol,
                   interval: "1m",
                   limit: 1,
-                  endTime: endTime,
+                  endTime: Date.now() - 24 * 60 * 60 * 1000,
                   type: "LAST_PRICE"
                 }
               }
