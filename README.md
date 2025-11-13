@@ -31,17 +31,22 @@ Add to your `config.js`:
 ```js
 {
   module: "MMM-Bitunix",
-  position: "top_bar",
+  position: "bottom_bar",
   config: {
     stocks: [
-      { symbol: "BTCUSDT" },
-      { symbol: "ETHUSDT" },
-      { symbol: "SOLUSDT" }
+      { symbol: "BTCUSDT", name: "Bitcoin" },
+      { symbol: "ETHUSDT", name: "Ethereum" },
+      { symbol: "ONDOUSDT", name: "Ondo" },
+      { symbol: "DOGEUSDT", name: "Dogecoin" },
+      { symbol: "A2ZUSDT", name: "Arena-Z" },
+      { symbol: "BDXNUSDT", name: "Beldex" },
+      { symbol: "PENGUUSDT", name: "Pudgy Penguins" },
+      { symbol: "JELLYJELLY", name: "Jelly-My-Jelly" }
     ],
-    showChangePercent: true,
-    scrollSpeed: 40 // pixels per second
+    display_duration: 2,
+    showChangePercent: true
   }
-}
+},
 ```
 
 ## Config Options

@@ -6,7 +6,7 @@
         {% if stock.changePercent > 0 %}positive
         {% elif stock.changePercent < 0 %}negative
         {% else %}neutral{% endif %}">
-        <span class="symbol">{{ stock.cleanSymbol }}</span><span class="colon">:</span>
+        <span class="symbol">{{ stock.displayName }} ({{ stock.cleanSymbol }})</span><span class="colon">:</span>
         <span class="price">{{ stock.lastPrice.toFixed(stock.decimals) }}</span>
         <span class="usdt">USDT</span>
         {% if config.showChangePercent %}

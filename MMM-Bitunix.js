@@ -23,7 +23,8 @@ Module.register("MMM-Bitunix", {
     // Symbols automatisch auf *USDT* erweitern
     this.config.stocks = this.config.stocks.map(s => {
       return {
-        symbol: s.symbol.endsWith("USDT") ? s.symbol : `${s.symbol}USDT`
+        symbol: s.symbol.endsWith("USDT") ? s.symbol : `${s.symbol}USDT`,
+        name: s.name || s.symbol.replace("USDT", "")
       };
     });
 
@@ -141,7 +142,10 @@ Module.register("MMM-Bitunix", {
       stock: {
         ...this.currentStock,
         decimals,
-        cleanSymbol: this.currentStock.symbol.replace("USDT", "")
+        cleanSymbol: this.currentStock.symbol.replace("USDT", ""),
+        displayName: this.config.stocks.find(
+          x => x.symbol === this.currentStock.symbol
+        )?.name || this.currentStock.symbol.replace("USDT", "")
       },
       lastUpdate: this.state.lastUpdate
         ? moment(this.state.lastUpdate).format("HH:mm:ss")
